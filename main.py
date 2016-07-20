@@ -809,7 +809,7 @@ def get_pokemarkers():
             'type': 'pokemon',
             'key': pokemon_key,
             'disappear_time': pokemon['disappear_time'],
-            'icon': 'static/icons/%d.png' % pokemon["id"],
+            'icon': 'static/hq-icons/%d.png' % pokemon["id"],
             'lat': pokemon["lat"],
             'lng': pokemon["lng"],
             'infobox': label
