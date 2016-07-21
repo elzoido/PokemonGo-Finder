@@ -19,6 +19,7 @@ import threading
 import werkzeug.serving
 import pokemon_pb2
 import time
+import pickle
 from google.protobuf.internal import encoder
 from google.protobuf.message import DecodeError
 from s2sphere import *
@@ -425,6 +426,7 @@ def get_token(service, username, password):
     """
 
     global global_token
+    global_token = None
     if global_token is None:
         if service == 'ptc':
             global_token = login_ptc(username, password)
@@ -531,6 +533,13 @@ def main():
     if not (FLOAT_LAT and FLOAT_LONG):
       print('[+] Getting initial location')
       retrying_set_location(args.location)
+      print('[+] Loading list of pokemon')
+      try:
+		  with open('pokemons.pickle') as f:
+			  pokemons = pickle.load(f)
+      except:
+		  print('[-] File pokemons.pickle not found. Skipping import')
+      
 
     if args.auto_refresh:
         global auto_refresh
@@ -670,11 +679,16 @@ transform_from_wgs_to_gcj(Location(Fort.Latitude, Fort.Longitude))
             "id": poke.pokemon.PokemonId,
             "name": pokename
         }
-
+        
+        print('[+] Found Pokemon {} at location {} {}'.format(pokename.encode('utf-8'), poke.Latitude, poke.Longitude))
+    
         if poke.SpawnPointId not in pokemons:
             notifier.pokemon_found(pokemon_obj)
 
         pokemons[poke.SpawnPointId] = pokemon_obj
+        
+    with open('pokemons.pickle', 'w') as f:  # Python 3: open(..., 'wb')
+		pickle.dump(pokemons, f)
 
 def clear_stale_pokemons():
     current_time = time.time()
